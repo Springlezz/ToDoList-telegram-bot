@@ -1,0 +1,6 @@
+@AliceSkill_HostAddress = http://localhost:5024
+
+GET {{AliceSkill_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
