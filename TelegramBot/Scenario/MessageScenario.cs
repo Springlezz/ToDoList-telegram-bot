@@ -106,40 +106,47 @@ public class MessageScenario : IMessageScenario
 
             return;
         }
+
+        if (message.Text.StartsWith("/list"))
+        {
+            var items = await _todoService.GetAllAsync(chatId);
+
+            if (!items.Any())
+            {
+                await _telegramSender.SendTextAsync(chatId,"Список пуст 📭");
+                return;
+            }
+
+            var text = "Вот все ваши задачи:\n";
+            foreach (var group in items
+                         .OrderByDescending(i => i.Day)
+                         .GroupBy(i => i.Day))
+            {
+                text += $"\n📅 {group.Key:dd MMMM, dddd, yyyy}\n";
+                foreach (var item in group)
+                {
+                    text += $"▪️ {item.ToDoItemText}\n";
+                }
+            }
+
+            await _telegramSender.SendTextAsync(chatId, text);
+            return;
+        }
         
-        
-        
-        // if (user.State == UserState.WaitingTodoText)
-        // {
-        //     if (string.IsNullOrWhiteSpace(message.Text))
-        //         return;
-        //
-        //     var day = user.SelectedTodoDay 
-        //               ?? DateOnly.FromDateTime(DateTime.UtcNow);
-        //
-        //     await _todoService.AddAsync(chatId, userId, message.Text, day);
-        //
-        //     user.State = UserState.None;
-        //     user.SelectedTodoDay = null;
-        //
-        //     await _userService.UpdateAsync(user);
-        //
-        //     await _telegramSender.SendTextAsync(chatId, "✅ Добавлено");
-        //
-        //     return;
-        // }
 
         if (message.Text.StartsWith("/addtodo"))
         {
             var text = message.Text.Replace("/addtodo", "").Trim();
-            var day = DateOnly.FromDateTime(DateTime.UtcNow);
-            
+
             if (string.IsNullOrWhiteSpace(text))
             {
                 await _telegramSender.SendTextAsync(chatId,
-                    "Использование: /addtodo текст задачи");
+                    "Чтобы добавить дело в список вам нужно написать: /addtodo {название дела}");
                 return;
             }
+
+            var day = user.SelectedTodoDay 
+                      ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
             await _todoService.AddAsync(chatId, userId, text, day);
 

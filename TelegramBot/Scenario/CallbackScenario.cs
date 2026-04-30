@@ -49,6 +49,8 @@ public class CallbackScenario : ICallbackScenario
 
             var items = await _todoService.GetByDayAsync(chatId, day);
             
+            user.SelectedTodoDay = day;
+            await _userService.UpdateAsync(user);
             var text = _builder.BuildDayText(items, day);
             var keyboard = _builder.BuildDayKeyboard(day);
 
@@ -101,7 +103,8 @@ public class CallbackScenario : ICallbackScenario
 
             // await _sender.AnswerCallbackAsync(callback.Id);
 
-            var day = DateOnly.FromDateTime(DateTime.UtcNow);
+            var day = user.SelectedTodoDay 
+                      ?? DateOnly.FromDateTime(DateTime.UtcNow);
 
             var items = await _todoService.GetByDayAsync(chatId, day);
 
@@ -126,7 +129,7 @@ public class CallbackScenario : ICallbackScenario
             // await _sender.AnswerCallbackAsync(callback.Id);
 
             await _sender.SendTextAsync(chatId,
-                $"✍️ Введите задачу для {day:dd.MM.yyyy}");
+                $"✍️ Введите задачу для {day:dd MMMM, dddd, yyyy}");
 
             return;
         }
