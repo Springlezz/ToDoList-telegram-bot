@@ -7,11 +7,11 @@ using TelegramBot.Repository.Interface;
 
 namespace TelegramBot.Repository;
 
-public class Repository : IMessageRepository
+public class MessageRepository : IMessageRepository
 {
     private readonly AppDbContext _dbContext;
     
-    public Repository(AppDbContext dbContext)
+    public MessageRepository(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

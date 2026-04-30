@@ -1,0 +1,55 @@
+using TelegramBot.Scenario;
+using TelegramBot.Services.Interface;
+using TelegramBot.Handlers;
+using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.ReplyMarkups;
+using TelegramBot.Models;
+
+namespace TelegramBot.Scenario;
+
+public class TodoMessageBuilder : ITodoMessageBuilder
+{
+    public string BuildDayText(IEnumerable<ToDoItem> items, DateOnly day)
+    {
+        var header = $"📅 {day:yyyy-MM-dd}\n\n";
+
+        if (!items.Any())
+            return header + "На сегодня задач нет";
+
+        var body = string.Join("\n", items.Select(i =>
+            i.IsDone
+                ? $"✅ {i.ToDoItemText}"
+                : $"❌ {i.ToDoItemText}"
+        ));
+
+        return header + body;
+    }
+    
+    public InlineKeyboardMarkup BuildDayKeyboard(DateOnly day)
+    {
+        return new InlineKeyboardMarkup(new[]
+        {
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("⬅️", $"todo_day:{day.AddDays(-1):yyyy-MM-dd}"),
+
+                InlineKeyboardButton.WithCallbackData("➕ Создать задачу", "todo_create"),
+
+                InlineKeyboardButton.WithCallbackData("🗑 Очистить", $"todo_clear:{day:yyyy-MM-dd}"),
+
+                InlineKeyboardButton.WithCallbackData("➡️", $"todo_day:{day.AddDays(1):yyyy-MM-dd}")
+            }
+        });
+    }
+    
+    public InlineKeyboardMarkup BuildBirthdayQuestionKeyboard()
+    {
+        return new InlineKeyboardMarkup(new[]
+        {
+            new []
+            {
+                InlineKeyboardButton.WithCallbackData("🎂 Указать дату", "birthday_set")
+            }
+        });
+    }
+}
