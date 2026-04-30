@@ -41,7 +41,7 @@ public class CallbackScenario : ICallbackScenario
             var day = DateOnly.Parse(dateStr);
 
             var items = await _todoService.GetByDayAsync(chatId, day);
-
+            
             var text = _builder.BuildDayText(items, day);
             var keyboard = _builder.BuildDayKeyboard(day);
 
@@ -105,6 +105,7 @@ public class CallbackScenario : ICallbackScenario
 
             return;
         }
+        
 
         if (data == "birthday_set")
         {

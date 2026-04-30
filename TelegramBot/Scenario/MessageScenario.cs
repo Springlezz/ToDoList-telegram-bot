@@ -15,7 +15,7 @@ public class MessageScenario : IMessageScenario
     private readonly ITodoService _todoService;
     private readonly ITelegramSender _telegramSender;
     private readonly ITodoMessageBuilder _todoMessageBuilder;
-    
+
     public MessageScenario(
         IUserService userService,
         ITodoService todoService,
@@ -30,26 +30,29 @@ public class MessageScenario : IMessageScenario
 
     public async Task HandleAsync(Message message)
     {
+        if (message?.Text == null)
+        {
+            return;
+        }
+           
+
+        if (string.IsNullOrWhiteSpace(message.Text))
+        {
+            return;
+        }
+            
+
+        if (message.From.IsBot)
+        {
+            return;
+        }
+            
+
         var chatId = message.Chat.Id;
         var userId = message.From.Id;
 
         var user = await _userService.GetOrCreateAsync(userId, message.From.Username);
-
-        if (message.Text == "/start")
-        {
-            await _telegramSender.SendTextAsync(chatId, "Привет! Я бот, который поможет вам составить список дел.\n\n Также меня можно добавить в беседу, чтобы вы могли составить общий список дел со своими друзьями!");
-            
-            while (user.HappyBirthday == null)
-            {
-                await _telegramSender.SendTextAsync(
-                    chatId,
-                    "Чтобы мы могли продолжить, введи свой день рождения",
-                    _todoMessageBuilder.BuildBirthdayQuestionKeyboard());
-                    
-                return;
-            }
-            return;
-        }
+        
         if (user.State == UserState.WaitingBirthday)
         {
             if (DateOnly.TryParse(message.Text, out var birthday))
@@ -70,7 +73,27 @@ public class MessageScenario : IMessageScenario
 
             return;
         }
-        if (message.Text == "/todo")
+        
+        if (message.Text.StartsWith("/start"))
+        {
+            await _telegramSender.SendTextAsync(chatId,
+                "Привет! Я бот для списка дел.\nОзнакомиться с командами можно при помощи /help");
+
+            if (user.HappyBirthday == null)
+            {
+                user.State = UserState.WaitingBirthday;
+                await _userService.UpdateAsync(user);
+
+                await _telegramSender.SendTextAsync(
+                    chatId,
+                    "📅 Введите дату рождения",
+                    _todoMessageBuilder.BuildBirthdayQuestionKeyboard());
+            }
+
+            return;
+        }
+
+        if (message.Text.StartsWith("/todo"))
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
@@ -80,13 +103,22 @@ public class MessageScenario : IMessageScenario
             var keyboard = _todoMessageBuilder.BuildDayKeyboard(today);
 
             await _telegramSender.SendTextAsync(chatId, text, keyboard);
-        }
-        if (user.State == UserState.WaitingTodoText)
-        {
-            await _todoService.AddAsync(chatId, userId, message.Text!);
 
-            user.State = UserState.None;
-            await _userService.UpdateAsync(user);
+            return;
+        }
+
+        if (message.Text.StartsWith("/addtodo"))
+        {
+            var text = message.Text.Replace("/addtodo", "").Trim();
+
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                await _telegramSender.SendTextAsync(chatId,
+                    "Использование: /addtodo текст задачи");
+                return;
+            }
+
+            await _todoService.AddAsync(chatId, userId, text);
 
             await _telegramSender.SendTextAsync(chatId, "✅ Добавлено");
 

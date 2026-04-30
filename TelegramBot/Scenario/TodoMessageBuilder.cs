@@ -14,7 +14,7 @@ public class TodoMessageBuilder : ITodoMessageBuilder
         var header = $"📅 {day:yyyy-MM-dd}\n\n";
 
         if (!items.Any())
-            return header + "На сегодня задач нет";
+            return header + "Никаких дел нет, отдыхаем!";
 
         var body = string.Join("\n", items.Select(i =>
             i.IsDone
@@ -33,7 +33,7 @@ public class TodoMessageBuilder : ITodoMessageBuilder
             {
                 InlineKeyboardButton.WithCallbackData("⬅️", $"todo_day:{day.AddDays(-1):yyyy-MM-dd}"),
 
-                InlineKeyboardButton.WithCallbackData("➕ Создать задачу", "todo_create"),
+                InlineKeyboardButton.WithCallbackData("➕ Создать задачу на этот день", "todo_create"),
 
                 InlineKeyboardButton.WithCallbackData("🗑 Очистить", $"todo_clear:{day:yyyy-MM-dd}"),
 

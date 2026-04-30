@@ -11,4 +11,5 @@ public interface ITodoMessageBuilder
     InlineKeyboardMarkup BuildDayKeyboard(DateOnly day);
 
     InlineKeyboardMarkup BuildBirthdayQuestionKeyboard();
+    
 }
