@@ -98,7 +98,7 @@ public class TodoService : ITodoService
         await _repository.DeleteAsync(entity);
     }
 
-    public async Task AddAsync(long chatId, long userId, string text)
+    public async Task AddAsync(long chatId, long userId, string text, DateOnly day)
     {
         var entity = new ToDoItemEntity
         {
@@ -106,7 +106,7 @@ public class TodoService : ITodoService
             CreatedByUserId = userId,
             ToDoItemText = text,
             IsDone = false,
-            Day = DateOnly.FromDateTime(DateTime.UtcNow)
+            Day = day
         };
 
         await _repository.AddAsync(entity);

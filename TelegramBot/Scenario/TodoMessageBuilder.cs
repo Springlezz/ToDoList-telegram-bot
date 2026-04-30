@@ -11,15 +11,15 @@ public class TodoMessageBuilder : ITodoMessageBuilder
 {
     public string BuildDayText(IEnumerable<ToDoItem> items, DateOnly day)
     {
-        var header = $"📅 {day:yyyy-MM-dd}\n\n";
+        var header = $"📅 {day:dd.MM.yyyy}\n\n";
 
         if (!items.Any())
             return header + "Никаких дел нет, отдыхаем!";
 
         var body = string.Join("\n", items.Select(i =>
             i.IsDone
-                ? $"✅ {i.ToDoItemText}"
-                : $"❌ {i.ToDoItemText}"
+                ? $"▪️ {i.ToDoItemText}"
+                : $"▪️ {i.ToDoItemText}" //временно
         ));
 
         return header + body;
@@ -31,13 +31,13 @@ public class TodoMessageBuilder : ITodoMessageBuilder
         {
             new []
             {
-                InlineKeyboardButton.WithCallbackData("⬅️", $"todo_day:{day.AddDays(-1):yyyy-MM-dd}"),
+                InlineKeyboardButton.WithCallbackData("⬅️", $"todo_day:{day.AddDays(-1):dd.MM.yyyy}"),
 
-                InlineKeyboardButton.WithCallbackData("➕ Создать задачу на этот день", "todo_create"),
+                InlineKeyboardButton.WithCallbackData("➕ Создать задачу на этот день", $"todo_add:{day:dd.MM.yyyy}"),
 
-                InlineKeyboardButton.WithCallbackData("🗑 Очистить", $"todo_clear:{day:yyyy-MM-dd}"),
+                InlineKeyboardButton.WithCallbackData("🗑 Очистить", $"todo_clear:{day:dd.MM.yyyy}"),
 
-                InlineKeyboardButton.WithCallbackData("➡️", $"todo_day:{day.AddDays(1):yyyy-MM-dd}")
+                InlineKeyboardButton.WithCallbackData("➡️", $"todo_day:{day.AddDays(1):dd.MM.yyyy}")
             }
         });
     }

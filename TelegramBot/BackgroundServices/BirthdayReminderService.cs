@@ -26,6 +26,7 @@ public class BirthdayReminderService : BackgroundService
             var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
             var todoService = scope.ServiceProvider.GetRequiredService<ITodoService>();
             var telegramSender = scope.ServiceProvider.GetRequiredService<ITelegramSender>();
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
 
             var users = await userService.GetBirthdayUsersTodayAsync();
 
@@ -47,7 +48,7 @@ public class BirthdayReminderService : BackgroundService
                 await todoService.AddAsync(
                     user.TelegramUserId,
                     user.TelegramUserId,
-                    "Купить себе торт");
+                    "Купить себе торт", today);
             }
 
             await Task.Delay(TimeSpan.FromHours(24), stoppingToken);

@@ -27,10 +27,17 @@ public class CallbackScenario : ICallbackScenario
 
     public async Task HandleAsync(CallbackQuery callback)
     {
+        if (callback?.Id == null)
+        {
+            return;
+        }
+        await _sender.AnswerCallbackAsync(callback.Id);
+        
         var chatId = callback.Message!.Chat.Id;
         var data = callback.Data;
         var telegramUser = callback.From;
-
+        
+        
         var user = await _userService.GetOrCreateAsync(
             telegramUser.Id,
             telegramUser.Username);
@@ -54,17 +61,17 @@ public class CallbackScenario : ICallbackScenario
             return;
         }
         
-        if (data == "todo_create")
-        {
-            user.State = UserState.WaitingTodoText;
-            await _userService.UpdateAsync(user);
-
-            await _sender.AnswerCallbackAsync(callback.Id);
-
-            await _sender.SendTextAsync(chatId, "Введите название задачи");
-
-            return;
-        }
+        // if (data == "todo_create")
+        // {
+        //     user.State = UserState.WaitingTodoText;
+        //     await _userService.UpdateAsync(user);
+        //
+        //     await _sender.AnswerCallbackAsync(callback.Id);
+        //
+        //     await _sender.SendTextAsync(chatId, "Введите название задачи");
+        //
+        //     return;
+        // }
         
         if (data!.StartsWith("todo_clear:"))
         {
@@ -73,7 +80,7 @@ public class CallbackScenario : ICallbackScenario
 
             await _todoService.ClearByDayAsync(chatId, day);
 
-            await _sender.AnswerCallbackAsync(callback.Id);
+            // await _sender.AnswerCallbackAsync(callback.Id);
 
             var items = await _todoService.GetByDayAsync(chatId, day);
 
@@ -92,7 +99,7 @@ public class CallbackScenario : ICallbackScenario
 
             await _todoService.ToggleAsync(todoId);
 
-            await _sender.AnswerCallbackAsync(callback.Id);
+            // await _sender.AnswerCallbackAsync(callback.Id);
 
             var day = DateOnly.FromDateTime(DateTime.UtcNow);
 
@@ -106,16 +113,34 @@ public class CallbackScenario : ICallbackScenario
             return;
         }
         
+        if (data!.StartsWith("todo_add:"))
+        {
+            var dateStr = data.Replace("todo_add:", "");
+            var day = DateOnly.Parse(dateStr);
+
+            user.SelectedTodoDay = day;
+            user.State = UserState.WaitingTodoText;
+
+            await _userService.UpdateAsync(user);
+
+            // await _sender.AnswerCallbackAsync(callback.Id);
+
+            await _sender.SendTextAsync(chatId,
+                $"✍️ Введите задачу для {day:dd.MM.yyyy}");
+
+            return;
+        }
+        
 
         if (data == "birthday_set")
         {
-            await _sender.AnswerCallbackAsync(callback.Id);
+            // await _sender.AnswerCallbackAsync(callback.Id);
 
             user.State = UserState.WaitingBirthday;
             await _userService.UpdateAsync(user);
 
             await _sender.SendTextAsync(chatId,
-                "📅 Введите дату рождения в формате YYYY-MM-DD");
+                "📅 Введите дату рождения в формате dd.MM.yyyy");
 
             return;
         }

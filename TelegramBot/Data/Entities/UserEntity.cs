@@ -10,6 +10,7 @@ public enum UserState
 public class UserEntity : BaseEntity
 {
     public UserState State { get; set; }
+    public DateOnly? SelectedTodoDay { get; set; }
     
     public string? AliceUsername { get; set; }
     public string? TelegramUsername { get; set; }

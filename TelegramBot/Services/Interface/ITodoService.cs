@@ -8,7 +8,7 @@ public interface ITodoService
     Task<IEnumerable<ToDoItem>> GetAllAsync(long chatId);
     Task<IEnumerable<ToDoItem>> GetByDayAsync(long chatId, DateOnly day);
 
-    Task AddAsync(long chatId, long userId, string todotemText);
+    Task AddAsync(long chatId, long userId, string text, DateOnly day);
     Task UpdateAsync(long chatId, Guid id);
     Task DeleteAsync(long chatId, Guid id);
     Task ClearByDayAsync(long chatId, DateOnly day);

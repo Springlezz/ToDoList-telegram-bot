@@ -7,6 +7,7 @@ public class User
     
     public long? AliceUserId { get; set; } 
     public long TelegramUserId { get; set; }
+    public DateOnly? SelectedTodoDay { get; set; }
     
     public DateOnly? HappyBirthday { get; set; }
 }

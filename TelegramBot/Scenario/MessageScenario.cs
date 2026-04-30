@@ -69,7 +69,7 @@ public class MessageScenario : IMessageScenario
             }
 
             await _telegramSender.SendTextAsync(chatId,
-                "❌ Неверный формат. Пример: 2001-05-17");
+                "❌ Неверный формат. Пример: 2001.05.17");
 
             return;
         }
@@ -106,11 +106,34 @@ public class MessageScenario : IMessageScenario
 
             return;
         }
+        
+        
+        
+        // if (user.State == UserState.WaitingTodoText)
+        // {
+        //     if (string.IsNullOrWhiteSpace(message.Text))
+        //         return;
+        //
+        //     var day = user.SelectedTodoDay 
+        //               ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        //
+        //     await _todoService.AddAsync(chatId, userId, message.Text, day);
+        //
+        //     user.State = UserState.None;
+        //     user.SelectedTodoDay = null;
+        //
+        //     await _userService.UpdateAsync(user);
+        //
+        //     await _telegramSender.SendTextAsync(chatId, "✅ Добавлено");
+        //
+        //     return;
+        // }
 
         if (message.Text.StartsWith("/addtodo"))
         {
             var text = message.Text.Replace("/addtodo", "").Trim();
-
+            var day = DateOnly.FromDateTime(DateTime.UtcNow);
+            
             if (string.IsNullOrWhiteSpace(text))
             {
                 await _telegramSender.SendTextAsync(chatId,
@@ -118,7 +141,7 @@ public class MessageScenario : IMessageScenario
                 return;
             }
 
-            await _todoService.AddAsync(chatId, userId, text);
+            await _todoService.AddAsync(chatId, userId, text, day);
 
             await _telegramSender.SendTextAsync(chatId, "✅ Добавлено");
 
