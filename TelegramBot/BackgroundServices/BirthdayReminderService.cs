@@ -51,7 +51,7 @@ public class BirthdayReminderService : BackgroundService
                     "Купить себе торт", today);
             }
 
-            await Task.Delay(TimeSpan.FromHours(24), stoppingToken);
+            await Task.Delay(TimeSpan.FromHours(12), stoppingToken);
         }
     }
 }

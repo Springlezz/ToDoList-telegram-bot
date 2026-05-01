@@ -46,7 +46,6 @@ public class MessageScenario : IMessageScenario
         {
             return;
         }
-            
 
         var chatId = message.Chat.Id;
         var userId = message.From.Id;
@@ -92,6 +91,22 @@ public class MessageScenario : IMessageScenario
 
             return;
         }
+        
+        if (message.Text.StartsWith("/changehp"))
+        {
+            user.State = UserState.WaitingBirthday;
+            await _userService.UpdateAsync(user);
+
+            await _telegramSender.SendTextAsync(
+                chatId,
+                "📅 Введите дату рождения",
+                _todoMessageBuilder.BuildBirthdayQuestionKeyboard());
+        }
+
+        if (message.Text.StartsWith("/help"))
+        {
+            await _telegramSender.SendTextAsync(chatId, "/todo - отобразить список дел на сегодня или другие дни\n/list - общий список дел, отображение все дела на все дни\n/addtodo - добавить новое дело на выбранную дату\n/changehp - сменить дату рождения");
+        }
 
         if (message.Text.StartsWith("/todo"))
         {
@@ -132,7 +147,6 @@ public class MessageScenario : IMessageScenario
             await _telegramSender.SendTextAsync(chatId, text);
             return;
         }
-        
 
         if (message.Text.StartsWith("/addtodo"))
         {
